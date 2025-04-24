@@ -38,7 +38,7 @@ class HabitacionTests(APITestCase):
     def test_actualizar_habitacion(self):
         data = {
             'tipo_habitacion': 'triple',
-            'numero_habitacion': 101,  # debe mantenerse igual porque es único
+            'numero_habitacion': 101,
             'precio': 200000.0,
             'estado': False
         }
