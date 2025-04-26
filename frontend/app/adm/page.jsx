@@ -5,35 +5,85 @@ import Sidebar from '../../components/Sidebar';
 
 export default function adm() {
   const [formData, setFormData] = useState({
-    roomType: '',
-    roomNumber: '',
-    description: '',
-    price: '',
-    status: ''
+    tipo_habitacion: '',
+    numero_habitacion: '',
+    descripcion: '',
+    precio: '',
+    estado: true,
+    imagen: null
   });
 
   // Referencias para los campos de entrada
-  const roomTypeRef = useRef(null);
-  const roomNumberRef = useRef(null);
-  const descriptionRef = useRef(null);
-  const priceRef = useRef(null);
-  
+  const tipoHabitacionRef = useRef(null);
+  const numeroHabitacionRef = useRef(null);
+  const descripcionRef = useRef(null);
+  const precioRef = useRef(null);
+
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleImageUpload = () => {
-    document.getElementById('imageUpload').click();
+  const handleImageUpload = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({
+        ...prev,
+        imagen: e.target.files[0]
+      }));
+    }
   };
 
   // Función para enfocar un campo cuando se hace clic en su etiqueta
   const focusInput = (ref) => {
     if (ref && ref.current) {
       ref.current.focus();
+    }
+  };
+
+  const handleCreateRoom = async () => {
+    try {
+      // Crear FormData para manejar la carga de archivos
+      const formDataToSend = new FormData();
+      formDataToSend.append('tipo_habitacion', formData.tipo_habitacion);
+      formDataToSend.append('numero_habitacion', formData.numero_habitacion);
+      formDataToSend.append('precio', formData.precio);
+      formDataToSend.append('estado', formData.estado);
+      
+      // Solo añadir la imagen si existe
+      if (formData.imagen) {
+        formDataToSend.append('imagen', formData.imagen);
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/habitaciones/`, {
+        method: 'POST',
+        // No establecer Content-Type cuando se usa FormData,
+        // el navegador lo configurará automáticamente con boundary
+        body: formDataToSend,
+      });
+
+      if (response.ok) {
+        console.log('Habitación creada con éxito!');
+        // Limpiar el formulario después de éxito
+        setFormData({
+          tipo_habitacion: '',
+          numero_habitacion: '',
+          descripcion: '',
+          precio: '',
+          estado: true,
+          imagen: null
+        });
+        alert('Habitación creada correctamente');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error al crear la habitación:', response.status, errorData);
+        alert(`Error al crear la habitación: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Hubo un error al comunicarse con el servidor:', error);
+      alert('Error de conexión con el servidor');
     }
   };
 
@@ -55,17 +105,18 @@ export default function adm() {
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-amber-800">Administración de Habitaciones</h1>
             </div>
-          
+
             {/* Image Upload Area */}
             <div className="bg-amber-50 rounded-lg h-40 flex items-center justify-end p-4 mb-6 border border-amber-200">
-              <input 
-                type="file" 
-                id="imageUpload" 
-                accept="image/*" 
-                className="hidden" 
+              <input
+                type="file"
+                id="imageUpload"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
               />
-              <button 
-                onClick={handleImageUpload}
+              <button
+                onClick={() => document.getElementById('imageUpload').click()}
                 className="bg-amber-100 rounded-lg p-3 w-32 h-32 flex flex-col items-center justify-center border border-amber-300 hover:bg-amber-200 transition-colors"
               >
                 <div className="mb-2">
@@ -80,41 +131,46 @@ export default function adm() {
                 </div>
                 <span className="text-xs mt-2 text-amber-800">Subir imagen</span>
               </button>
+              {formData.imagen && (
+                <div className="ml-4 text-amber-800">
+                  Imagen seleccionada: {formData.imagen.name}
+                </div>
+              )}
             </div>
 
             {/* Form Fields with clickable labels */}
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
-                <div 
+                <div
                   className="text-amber-800 font-medium mb-2 cursor-pointer"
-                  onClick={() => focusInput(roomTypeRef)}
+                  onClick={() => focusInput(tipoHabitacionRef)}
                 >
-                  Escriba aquí1
+                  Tipo de Habitación
                 </div>
                 <input
-                  ref={roomTypeRef}
+                  ref={tipoHabitacionRef}
                   type="text"
-                  name="roomType"
-                  value={formData.roomType}
+                  name="tipo_habitacion"
+                  value={formData.tipo_habitacion}
                   onChange={handleInputChange}
                   placeholder="Tipo de habitación"
                   className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
                 />
               </div>
               <div className="flex-1">
-                <div 
+                <div
                   className="text-amber-800 font-medium mb-2 cursor-pointer"
-                  onClick={() => focusInput(roomNumberRef)}
+                  onClick={() => focusInput(numeroHabitacionRef)}
                 >
-                  Escriba aquí2
+                  Número de Habitación
                 </div>
                 <input
-                  ref={roomNumberRef}
+                  ref={numeroHabitacionRef}
                   type="text"
-                  name="roomNumber"
-                  value={formData.roomNumber}
+                  name="numero_habitacion"
+                  value={formData.numero_habitacion}
                   onChange={handleInputChange}
-                  placeholder="Numero"
+                  placeholder="Número"
                   className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
                 />
               </div>
@@ -123,34 +179,34 @@ export default function adm() {
             {/* Description Area with clickable label */}
             <div className="flex gap-4 mb-6">
               <div className="flex-grow">
-                <div 
+                <div
                   className="text-amber-800 font-medium mb-2 cursor-pointer"
-                  onClick={() => focusInput(descriptionRef)}
+                  onClick={() => focusInput(descripcionRef)}
                 >
-                  Escriba aquí3
+                  Descripción
                 </div>
                 <textarea
-                  ref={descriptionRef}
-                  name="description"
-                  value={formData.description}
+                  ref={descripcionRef}
+                  name="descripcion"
+                  value={formData.descripcion}
                   onChange={handleInputChange}
-                  placeholder="Descripcion de la habitacion"
+                  placeholder="Descripción de la habitación"
                   className="w-full bg-amber-50 rounded-lg p-4 h-32 border border-amber-200 resize-none focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
                 ></textarea>
               </div>
               <div className="flex flex-col gap-4 w-64">
                 <div>
-                  <div 
+                  <div
                     className="text-amber-800 font-medium mb-2 cursor-pointer"
-                    onClick={() => focusInput(priceRef)}
+                    onClick={() => focusInput(precioRef)}
                   >
-                    Escriba aquí4
+                    Precio
                   </div>
                   <input
-                    ref={priceRef}
+                    ref={precioRef}
                     type="text"
-                    name="price"
-                    value={formData.price}
+                    name="precio"
+                    value={formData.precio}
                     onChange={handleInputChange}
                     placeholder="Precio"
                     className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
@@ -158,29 +214,26 @@ export default function adm() {
                 </div>
                 <div>
                   <div className="text-amber-800 font-medium mb-2">
-                    Escriba aquí5
+                    ¿Disponible?
                   </div>
-                  <select
-                    name="status"
-                    value={formData.status}
+                  <input
+                    type="checkbox"
+                    name="estado"
+                    checked={formData.estado}
                     onChange={handleInputChange}
-                    className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
-                  >
-                    <option value="">Estado</option>
-                    <option value="disponible">Disponible</option>
-                    <option value="ocupada">Ocupada</option>
-                    <option value="mantenimiento">En mantenimiento</option>
-                  </select>
+                    className="w-6 h-6 text-amber-600 rounded border-amber-200 focus:ring-amber-400 focus:ring-2"
+                  />
                 </div>
               </div>
             </div>
 
             {/* Create Room Button */}
             <div className="flex justify-center">
-              <button 
+              <button
+                onClick={handleCreateRoom}
                 className="bg-orange-700 hover:bg-orange-800 text-white font-medium py-3 px-8 rounded-lg shadow-md transition duration-300"
               >
-                Crear habitacion
+                Crear habitación
               </button>
             </div>
           </div>
