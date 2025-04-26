@@ -1,8 +1,55 @@
 "use client";
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 
 export default function Login() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const focusInput = (ref) => {
+    if (ref && ref.current) {
+      ref.current.focus();
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login exitoso', data);
+        alert('¡Bienvenido!');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error en login:', response.status, errorData);
+        alert('Error en login');
+      }
+    } catch (error) {
+      console.error('Error de conexión:', error);
+      alert('Error de conexión');
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-amber-50">
       <div className="w-1/2 flex flex-col items-center justify-center p-8">
@@ -29,40 +76,54 @@ export default function Login() {
             className="opacity-20"
           />
         </div>
-        
-        <div className="bg-amber-950 p-8 rounded-lg shadow-lg w-full max-w-md z-10 relative">
-          <h2 className="text-2xl font-semibold text-white text-center mb-8">
-            Inicio de sesión
-          </h2>
-          
-          <form className="space-y-6">
-            <div>
-              <input
-                type="text"
-                placeholder="Usuario"
-                className="w-full px-4 py-3 rounded bg-amber-50 text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-600"
-                required
-              />
+
+        <div className="relative z-10 bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-2xl font-bold mb-6 text-center text-amber-800">Iniciar Sesión</h2>
+
+          <div className="mb-4">
+            <div
+              className="text-amber-800 font-medium mb-2 cursor-pointer"
+              onClick={() => focusInput(emailRef)}
+            >
+              Correo Electrónico
             </div>
-            
-            <div>
-              <input
-                type="password"
-                placeholder="Contraseña"
-                className="w-full px-4 py-3 rounded bg-amber-50 text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-600"
-                required
-              />
+            <input
+              ref={emailRef}
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Ingrese su correo"
+              className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
+            />
+          </div>
+
+          <div className="mb-6">
+            <div
+              className="text-amber-800 font-medium mb-2 cursor-pointer"
+              onClick={() => focusInput(passwordRef)}
+            >
+              Contraseña
             </div>
-            
-            <div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-amber-700 hover:bg-amber-800 text-white font-medium rounded transition duration-300"
-              >
-                Iniciar sesión
-              </button>
-            </div>
-          </form>
+            <input
+              ref={passwordRef}
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Ingrese su contraseña"
+              className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
+            />
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              onClick={handleLogin}
+              className="bg-orange-700 hover:bg-orange-800 text-white font-medium py-3 px-8 rounded-lg shadow-md transition duration-300"
+            >
+              Iniciar sesión
+            </button>
+          </div>
         </div>
       </div>
     </div>

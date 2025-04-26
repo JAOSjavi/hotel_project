@@ -36,7 +36,6 @@ export default function adm() {
     }
   };
 
-  // Función para enfocar un campo cuando se hace clic en su etiqueta
   const focusInput = (ref) => {
     if (ref && ref.current) {
       ref.current.focus();
@@ -45,28 +44,23 @@ export default function adm() {
 
   const handleCreateRoom = async () => {
     try {
-      // Crear FormData para manejar la carga de archivos
       const formDataToSend = new FormData();
       formDataToSend.append('tipo_habitacion', formData.tipo_habitacion);
       formDataToSend.append('numero_habitacion', formData.numero_habitacion);
       formDataToSend.append('precio', formData.precio);
       formDataToSend.append('estado', formData.estado);
       
-      // Solo añadir la imagen si existe
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
       }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/habitaciones/`, {
         method: 'POST',
-        // No establecer Content-Type cuando se usa FormData,
-        // el navegador lo configurará automáticamente con boundary
         body: formDataToSend,
       });
 
       if (response.ok) {
         console.log('Habitación creada con éxito!');
-        // Limpiar el formulario después de éxito
         setFormData({
           tipo_habitacion: '',
           numero_habitacion: '',
@@ -89,16 +83,13 @@ export default function adm() {
 
   return (
     <div className="flex flex-col min-h-screen bg-amber-50">
-      {/* Barra superior con el mismo estilo que antes */}
       <div className="w-full bg-amber-600 text-white p-4 shadow-md">
         <h1 className="text-xl font-bold text-left">Hotel Lindo Sueño</h1>
       </div>
 
       <div className="flex flex-1">
-        {/* Sidebar component */}
         <Sidebar activeItem="Reportes" />
 
-        {/* Main Content */}
         <div className="flex-1 p-6 overflow-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             {/* Header */}
@@ -106,7 +97,6 @@ export default function adm() {
               <h1 className="text-2xl font-bold text-amber-800">Administración de Habitaciones</h1>
             </div>
 
-            {/* Image Upload Area */}
             <div className="bg-amber-50 rounded-lg h-40 flex items-center justify-end p-4 mb-6 border border-amber-200">
               <input
                 type="file"
@@ -138,7 +128,6 @@ export default function adm() {
               )}
             </div>
 
-            {/* Form Fields with clickable labels */}
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
                 <div
@@ -176,7 +165,6 @@ export default function adm() {
               </div>
             </div>
 
-            {/* Description Area with clickable label */}
             <div className="flex gap-4 mb-6">
               <div className="flex-grow">
                 <div
