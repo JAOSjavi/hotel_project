@@ -1,4 +1,3 @@
-# habitaciones/tests.py
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -77,3 +76,8 @@ class HabitacionTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('imagen', response.data)
         self.assertTrue(response.data['imagen'].endswith('.png'))
+
+'''
+
+
+'''
