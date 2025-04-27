@@ -12,6 +12,7 @@ class Habitacion(models.Model):
     precio = models.FloatField()
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='habitaciones/', null=True, blank=True)
+    descripcion = models.TextField(blank=True, null= True)
 
     def __str__(self):
         return f"Habitación {self.numero_habitacion} - {self.tipo_habitacion}"
