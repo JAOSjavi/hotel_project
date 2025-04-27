@@ -4,11 +4,11 @@ import Image from 'next/image';
 
 export default function Login() {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
 
-  const emailRef = useRef(null);
+  const usernameRef = useRef(null);
   const passwordRef = useRef(null);
 
   const handleInputChange = (e) => {
@@ -25,9 +25,26 @@ export default function Login() {
     }
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    // Credenciales de administrador
+    const adminUsername = "admin";
+    const adminPassword = "admin123";
+
+    // Verificar si son credenciales de administrador
+    if (formData.username === adminUsername && formData.password === adminPassword) {
+      console.log('Inicio de sesión como administrador');
+      // Redirección a la página de administración
+      window.location.href = '/adm';
+      return;
+    }
+
+    // Proceso normal de inicio de sesión para huéspedes
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/registro/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,12 +54,17 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
+        // Guardar tokens en localStorage
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        
         console.log('Login exitoso', data);
         alert('¡Bienvenido!');
+        window.location.href = '/dashboard'; // Redirección para usuarios normales
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('Error en login:', response.status, errorData);
-        alert('Error en login');
+        alert('Credenciales incorrectas');
       }
     } catch (error) {
       console.error('Error de conexión:', error);
@@ -80,49 +102,59 @@ export default function Login() {
         <div className="relative z-10 bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center text-amber-800">Iniciar Sesión</h2>
 
-          <div className="mb-4">
-            <div
-              className="text-amber-800 font-medium mb-2 cursor-pointer"
-              onClick={() => focusInput(emailRef)}
-            >
-              Correo Electrónico
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <div
+                className="text-amber-800 font-medium mb-2 cursor-pointer"
+                onClick={() => focusInput(usernameRef)}
+              >
+                Nombre de usuario
+              </div>
+              <input
+                ref={usernameRef}
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Ingrese su nombre de usuario"
+                className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
+                required
+              />
             </div>
-            <input
-              ref={emailRef}
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Ingrese su correo"
-              className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
-            />
-          </div>
 
-          <div className="mb-6">
-            <div
-              className="text-amber-800 font-medium mb-2 cursor-pointer"
-              onClick={() => focusInput(passwordRef)}
-            >
-              Contraseña
+            <div className="mb-6">
+              <div
+                className="text-amber-800 font-medium mb-2 cursor-pointer"
+                onClick={() => focusInput(passwordRef)}
+              >
+                Contraseña
+              </div>
+              <input
+                ref={passwordRef}
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Ingrese su contraseña"
+                className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
+                required
+              />
             </div>
-            <input
-              ref={passwordRef}
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder="Ingrese su contraseña"
-              className="w-full bg-amber-50 rounded-lg p-4 border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-black"
-            />
-          </div>
 
-          <div className="flex justify-center">
-            <button
-              onClick={handleLogin}
-              className="bg-orange-700 hover:bg-orange-800 text-white font-medium py-3 px-8 rounded-lg shadow-md transition duration-300"
-            >
-              Iniciar sesión
-            </button>
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="bg-orange-700 hover:bg-orange-800 text-white font-medium py-3 px-8 rounded-lg shadow-md transition duration-300"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </form>
+          
+          <div className="mt-4 text-center">
+            <a href="/register" className="text-amber-800 hover:text-amber-900 text-sm">
+              ¿No tienes una cuenta? Regístrate
+            </a>
           </div>
         </div>
       </div>

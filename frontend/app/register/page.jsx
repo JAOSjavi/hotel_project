@@ -4,18 +4,18 @@ import Image from 'next/image';
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    nombre_completo: '',
-    correo: '',
-    nombre_usuario: '',
+    full_name: '',
+    email: '',
+    username: '',
     password: '',
-    confirmar_password: ''
+    confirm_password: ''
   });
 
-  const nombreCompletoRef = useRef(null);
-  const correoRef = useRef(null);
-  const nombreUsuarioRef = useRef(null);
+  const fullNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const usernameRef = useRef(null);
   const passwordRef = useRef(null);
-  const confirmarPasswordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -34,20 +34,21 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmar_password) {
+    if (formData.password !== formData.confirm_password) {
       alert('Las contraseñas no coinciden');
       return;
     }
 
     try {
       const dataToSend = {
-        nombre_completo: formData.nombre_completo,
-        correo: formData.correo,
-        username: formData.nombre_usuario,
-        password: formData.password
+        full_name: formData.full_name,
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        confirm_password: formData.confirm_password
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/usuarios/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/registro/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,14 +56,19 @@ export default function Register() {
         body: JSON.stringify(dataToSend),
       });
 
+      const responseText = await response.text();
+      console.log("Respuesta completa:", responseText);
+
+      
+
       if (response.ok) {
         console.log('Usuario registrado con éxito!');
         setFormData({
-          nombre_completo: '',
-          correo: '',
-          nombre_usuario: '',
+          full_name: '',
+          email: '',
+          username: '',
           password: '',
-          confirmar_password: ''
+          confirm_password: ''
         });
         alert('Usuario registrado correctamente');
         window.location.href = '/login';
@@ -113,10 +119,10 @@ export default function Register() {
           <form className="space-y-4" onSubmit={handleRegister}>
             <div>
               <input
-                ref={nombreCompletoRef}
+                ref={fullNameRef}
                 type="text"
-                name="nombre_completo"
-                value={formData.nombre_completo}
+                name="full_name"
+                value={formData.full_name}
                 onChange={handleInputChange}
                 placeholder="Nombre completo"
                 className="w-full px-4 py-3 rounded bg-amber-50 text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-600"
@@ -125,10 +131,10 @@ export default function Register() {
             </div>
             <div>
               <input
-                ref={correoRef}
+                ref={emailRef}
                 type="email"
-                name="correo"
-                value={formData.correo}
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Correo electrónico"
                 className="w-full px-4 py-3 rounded bg-amber-50 text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-600"
@@ -137,10 +143,10 @@ export default function Register() {
             </div>
             <div>
               <input
-                ref={nombreUsuarioRef}
+                ref={usernameRef}
                 type="text"
-                name="nombre_usuario"
-                value={formData.nombre_usuario}
+                name="username"
+                value={formData.username}
                 onChange={handleInputChange}
                 placeholder="Nombre de usuario"
                 className="w-full px-4 py-3 rounded bg-amber-50 text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-600"
@@ -161,10 +167,10 @@ export default function Register() {
             </div>
             <div>
               <input
-                ref={confirmarPasswordRef}
+                ref={confirmPasswordRef}
                 type="password"
-                name="confirmar_password"
-                value={formData.confirmar_password}
+                name="confirm_password"
+                value={formData.confirm_password}
                 onChange={handleInputChange}
                 placeholder="Confirmar contraseña"
                 className="w-full px-4 py-3 rounded bg-amber-50 text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-600"
