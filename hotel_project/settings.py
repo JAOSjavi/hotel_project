@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-g66mkh#wj)wi+$_vm+hsc$o8t@b)2-a@4zx2nl!(5_)po9y%e=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'hotel_project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -92,6 +92,13 @@ DATABASES = {
         'OPTIONS': {
             'connect_timeout':30,
         },
+    }
+}
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
